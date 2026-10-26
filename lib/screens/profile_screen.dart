@@ -4,6 +4,7 @@ import '../providers/user_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -13,6 +14,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   bool _controllersInitialized = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -49,20 +51,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _logout() {
+    final provider = UserProvider.of(context);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Logout'),
         content: const Text('Apakah Anda yakin ingin logout?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Batal'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
-              UserProvider.of(context).logout();
+              Navigator.pop(dialogContext);
+              provider.logout();
               Navigator.pop(context);
             },
             child: const Text('Logout', style: TextStyle(color: Colors.red)),
@@ -75,6 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = UserProvider.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil'),
@@ -171,6 +175,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     'Catatan Keamanan',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
                                     ),
                                   ),
                                 ],
@@ -180,7 +185,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 'Data disimpan di SharedPreferences (plaintext). '
                                 'Jangan simpan password atau data sensitif di sini. '
                                 'Gunakan secure storage untuk data sensitif.',
-                                style: TextStyle(fontSize: 12),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black87,
+                                ),
                               ),
                             ],
                           ),
