@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/user.dart';
 
 class UserProvider extends InheritedWidget {
@@ -9,7 +10,10 @@ class UserProvider extends InheritedWidget {
   final bool isLoading;
   final bool isDarkMode;
   final VoidCallback toggleTheme;
-  final int visitCount; // LATIHAN 2
+  final int visitCount;
+  final List<String> favorites; // LATIHAN 3
+  final Future<bool> Function(String) addFavorite; // LATIHAN 3
+  final Future<void> Function(String) removeFavorite; // LATIHAN 3
 
   const UserProvider({
     super.key,
@@ -19,13 +23,15 @@ class UserProvider extends InheritedWidget {
     required this.isLoading,
     required this.isDarkMode,
     required this.toggleTheme,
-    required this.visitCount, // LATIHAN 2
+    required this.visitCount,
+    required this.favorites, // LATIHAN 3
+    required this.addFavorite, // LATIHAN 3
+    required this.removeFavorite, // LATIHAN 3
     required super.child,
   });
 
   static UserProvider of(BuildContext context) {
-    final provider =
-        context.dependOnInheritedWidgetOfExactType<UserProvider>();
+    final provider = context.dependOnInheritedWidgetOfExactType<UserProvider>();
     assert(provider != null, 'UserProvider tidak ditemukan di context');
     return provider!;
   }
@@ -35,7 +41,8 @@ class UserProvider extends InheritedWidget {
     return oldWidget.user != user ||
         oldWidget.isLoading != isLoading ||
         oldWidget.isDarkMode != isDarkMode ||
-        oldWidget.visitCount != visitCount; // LATIHAN 2
+        oldWidget.visitCount != visitCount ||
+        oldWidget.favorites != favorites; // LATIHAN 3
   }
 }
 
@@ -52,7 +59,8 @@ class _UserProviderWrapperState extends State<UserProviderWrapper> {
   User _user = User(name: '', email: '');
   bool _isLoading = true;
   bool _isDarkMode = false;
-  int _visitCount = 0; // LATIHAN 2
+  int _visitCount = 0;
+  List<String> _favorites = []; // LATIHAN 3
 
   @override
   void initState() {
@@ -67,14 +75,17 @@ class _UserProviderWrapperState extends State<UserProviderWrapper> {
     final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
     final isDarkMode = prefs.getBool('is_dark_mode') ?? false;
 
-    // LATIHAN 2: increment counter setiap aplikasi dibuka
     final visitCount = (prefs.getInt('visit_count') ?? 0) + 1;
     await prefs.setInt('visit_count', visitCount);
+
+    // LATIHAN 3: muat daftar favorit
+    final favorites = prefs.getStringList('favorites') ?? [];
 
     setState(() {
       _user = User(name: name, email: email, isLoggedIn: isLoggedIn);
       _isDarkMode = isDarkMode;
-      _visitCount = visitCount; // LATIHAN 2
+      _visitCount = visitCount;
+      _favorites = favorites; // LATIHAN 3
       _isLoading = false;
     });
   }
@@ -112,6 +123,31 @@ class _UserProviderWrapperState extends State<UserProviderWrapper> {
     await prefs.setBool('is_dark_mode', newValue);
   }
 
+  // LATIHAN 3: tambah favorit (return false jika kosong atau duplikat)
+  Future<bool> _addFavorite(String item) async {
+    final value = item.trim();
+    if (value.isEmpty) return false;
+    if (_favorites.any((f) => f.toLowerCase() == value.toLowerCase())) {
+      return false;
+    }
+
+    final newList = [..._favorites, value];
+    setState(() => _favorites = newList);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('favorites', newList);
+    return true;
+  }
+
+  // LATIHAN 3: hapus favorit
+  Future<void> _removeFavorite(String item) async {
+    final newList = _favorites.where((f) => f != item).toList();
+    setState(() => _favorites = newList);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('favorites', newList);
+  }
+
   @override
   Widget build(BuildContext context) {
     return UserProvider(
@@ -121,7 +157,10 @@ class _UserProviderWrapperState extends State<UserProviderWrapper> {
       isLoading: _isLoading,
       isDarkMode: _isDarkMode,
       toggleTheme: _toggleTheme,
-      visitCount: _visitCount, // LATIHAN 2
+      visitCount: _visitCount,
+      favorites: _favorites, // LATIHAN 3
+      addFavorite: _addFavorite, // LATIHAN 3
+      removeFavorite: _removeFavorite, // LATIHAN 3
       child: widget.child,
     );
   }
