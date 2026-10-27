@@ -16,7 +16,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // LATIHAN 4: Consumer mengakses state
     return Consumer<UserProvider>(
       builder: (context, provider, _) {
         return Scaffold(

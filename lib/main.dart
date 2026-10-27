@@ -6,7 +6,6 @@ import 'screens/home_screen.dart';
 
 void main() {
   runApp(
-    // LATIHAN 4: ChangeNotifierProvider menyediakan UserProvider ke subtree
     ChangeNotifierProvider(
       create: (_) => UserProvider()..loadData(),
       child: const MyApp(),
@@ -19,7 +18,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // LATIHAN 4: Consumer, rebuild saat tema berubah
     return Consumer<UserProvider>(
       builder: (context, provider, _) {
         return MaterialApp(

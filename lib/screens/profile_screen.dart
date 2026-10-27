@@ -32,6 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
+  // LATIHAN 5: tampilkan pesan error dari validasi keamanan
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -42,13 +43,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       isLoggedIn: true,
     );
 
-    await provider.updateUser(updatedUser);
+    final error = await provider.updateUser(updatedUser);
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profil berhasil disimpan'),
-        backgroundColor: Colors.green,
+      SnackBar(
+        content: Text(error ?? 'Profil berhasil disimpan'),
+        backgroundColor: error == null ? Colors.green : Colors.red,
       ),
     );
   }
