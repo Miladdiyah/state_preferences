@@ -23,7 +23,6 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
         actions: [
-          // LATIHAN 1: tombol toggle tema
           IconButton(
             tooltip: provider.isDarkMode ? 'Mode Terang' : 'Mode Gelap',
             icon: Icon(
@@ -54,6 +53,16 @@ class HomeScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
+
+                    // LATIHAN 2: tampilkan counter kunjungan
+                    Chip(
+                      avatar: const Icon(Icons.visibility, size: 18),
+                      label: Text(
+                        'Aplikasi dibuka ${provider.visitCount} kali',
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
                     if (provider.user.isLoggedIn) ...[
                       Text(
                         'Email: ${provider.user.email}',

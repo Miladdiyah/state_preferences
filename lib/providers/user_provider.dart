@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/user.dart';
 
 class UserProvider extends InheritedWidget {
@@ -8,8 +7,9 @@ class UserProvider extends InheritedWidget {
   final Function(User) updateUser;
   final VoidCallback logout;
   final bool isLoading;
-  final bool isDarkMode; // LATIHAN 1
-  final VoidCallback toggleTheme; // LATIHAN 1
+  final bool isDarkMode;
+  final VoidCallback toggleTheme;
+  final int visitCount; // LATIHAN 2
 
   const UserProvider({
     super.key,
@@ -17,13 +17,15 @@ class UserProvider extends InheritedWidget {
     required this.updateUser,
     required this.logout,
     required this.isLoading,
-    required this.isDarkMode, // LATIHAN 1
-    required this.toggleTheme, // LATIHAN 1
+    required this.isDarkMode,
+    required this.toggleTheme,
+    required this.visitCount, // LATIHAN 2
     required super.child,
   });
 
   static UserProvider of(BuildContext context) {
-    final provider = context.dependOnInheritedWidgetOfExactType<UserProvider>();
+    final provider =
+        context.dependOnInheritedWidgetOfExactType<UserProvider>();
     assert(provider != null, 'UserProvider tidak ditemukan di context');
     return provider!;
   }
@@ -32,11 +34,11 @@ class UserProvider extends InheritedWidget {
   bool updateShouldNotify(UserProvider oldWidget) {
     return oldWidget.user != user ||
         oldWidget.isLoading != isLoading ||
-        oldWidget.isDarkMode != isDarkMode; // LATIHAN 1
+        oldWidget.isDarkMode != isDarkMode ||
+        oldWidget.visitCount != visitCount; // LATIHAN 2
   }
 }
 
-// StatefulWidget yang membungkus InheritedWidget
 class UserProviderWrapper extends StatefulWidget {
   final Widget child;
 
@@ -49,7 +51,8 @@ class UserProviderWrapper extends StatefulWidget {
 class _UserProviderWrapperState extends State<UserProviderWrapper> {
   User _user = User(name: '', email: '');
   bool _isLoading = true;
-  bool _isDarkMode = false; // LATIHAN 1
+  bool _isDarkMode = false;
+  int _visitCount = 0; // LATIHAN 2
 
   @override
   void initState() {
@@ -57,22 +60,25 @@ class _UserProviderWrapperState extends State<UserProviderWrapper> {
     _loadUser();
   }
 
-  // Memuat data dari SharedPreferences
   Future<void> _loadUser() async {
     final prefs = await SharedPreferences.getInstance();
     final name = prefs.getString('user_name') ?? '';
     final email = prefs.getString('user_email') ?? '';
     final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
-    final isDarkMode = prefs.getBool('is_dark_mode') ?? false; // LATIHAN 1
+    final isDarkMode = prefs.getBool('is_dark_mode') ?? false;
+
+    // LATIHAN 2: increment counter setiap aplikasi dibuka
+    final visitCount = (prefs.getInt('visit_count') ?? 0) + 1;
+    await prefs.setInt('visit_count', visitCount);
 
     setState(() {
       _user = User(name: name, email: email, isLoggedIn: isLoggedIn);
-      _isDarkMode = isDarkMode; // LATIHAN 1
+      _isDarkMode = isDarkMode;
+      _visitCount = visitCount; // LATIHAN 2
       _isLoading = false;
     });
   }
 
-  // Menyimpan data user ke SharedPreferences
   Future<void> _updateUser(User newUser) async {
     setState(() {
       _isLoading = true;
@@ -89,7 +95,6 @@ class _UserProviderWrapperState extends State<UserProviderWrapper> {
     });
   }
 
-  // Logout: hapus data user (kecuali email)
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('user_name');
@@ -100,7 +105,6 @@ class _UserProviderWrapperState extends State<UserProviderWrapper> {
     });
   }
 
-  // LATIHAN 1: toggle tema dan simpan ke SharedPreferences
   Future<void> _toggleTheme() async {
     final newValue = !_isDarkMode;
     setState(() => _isDarkMode = newValue);
@@ -115,8 +119,9 @@ class _UserProviderWrapperState extends State<UserProviderWrapper> {
       updateUser: _updateUser,
       logout: _logout,
       isLoading: _isLoading,
-      isDarkMode: _isDarkMode, // LATIHAN 1
-      toggleTheme: _toggleTheme, // LATIHAN 1
+      isDarkMode: _isDarkMode,
+      toggleTheme: _toggleTheme,
+      visitCount: _visitCount, // LATIHAN 2
       child: widget.child,
     );
   }

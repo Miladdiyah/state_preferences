@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'providers/user_provider.dart';
 import 'screens/home_screen.dart';
 
@@ -16,7 +15,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// LATIHAN 1: widget ini berada DI BAWAH UserProvider, jadi bisa membaca tema
+// Widget ini berada DI BAWAH UserProvider, jadi bisa membaca tema
 class AppRoot extends StatelessWidget {
   const AppRoot({super.key});
 
