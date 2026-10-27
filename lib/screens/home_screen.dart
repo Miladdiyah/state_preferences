@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../providers/user_provider.dart';
 import 'profile_screen.dart';
@@ -9,85 +10,88 @@ class HomeScreen extends StatelessWidget {
   void _goToProfile(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const ProfileScreen()),
+      MaterialPageRoute(builder: (_) => const ProfileScreen()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = UserProvider.of(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            tooltip: provider.isDarkMode ? 'Mode Terang' : 'Mode Gelap',
-            icon: Icon(
-              provider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-            ),
-            onPressed: provider.toggleTheme,
-          ),
-        ],
-      ),
-      body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.home, size: 80, color: Colors.deepPurple),
-                    const SizedBox(height: 24),
-                    Text(
-                      provider.user.isLoggedIn
-                          ? 'Selamat datang, ${provider.user.name}!'
-                          : 'Selamat datang, Tamu!',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // LATIHAN 2: tampilkan counter kunjungan
-                    Chip(
-                      avatar: const Icon(Icons.visibility, size: 18),
-                      label: Text(
-                        'Aplikasi dibuka ${provider.visitCount} kali',
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    if (provider.user.isLoggedIn) ...[
-                      Text(
-                        'Email: ${provider.user.email}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton.icon(
-                        onPressed: () => _goToProfile(context),
-                        icon: const Icon(Icons.person),
-                        label: const Text('Lihat Profil'),
-                      ),
-                    ] else ...[
-                      ElevatedButton.icon(
-                        onPressed: () => _goToProfile(context),
-                        icon: const Icon(Icons.login),
-                        label: const Text('Login / Daftar'),
-                      ),
-                    ],
-                  ],
+    // LATIHAN 4: Consumer mengakses state
+    return Consumer<UserProvider>(
+      builder: (context, provider, _) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Home'),
+            backgroundColor: Colors.deepPurple,
+            foregroundColor: Colors.white,
+            actions: [
+              IconButton(
+                tooltip: provider.isDarkMode ? 'Mode Terang' : 'Mode Gelap',
+                icon: Icon(
+                  provider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
                 ),
+                onPressed: () => context.read<UserProvider>().toggleTheme(),
               ),
-            ),
+            ],
+          ),
+          body: provider.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.home,
+                          size: 80,
+                          color: Colors.deepPurple,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          provider.user.isLoggedIn
+                              ? 'Selamat datang, ${provider.user.name}!'
+                              : 'Selamat datang, Tamu!',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        Chip(
+                          avatar: const Icon(Icons.visibility, size: 18),
+                          label: Text(
+                            'Aplikasi dibuka ${provider.visitCount} kali',
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        if (provider.user.isLoggedIn) ...[
+                          Text(
+                            'Email: ${provider.user.email}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: () => _goToProfile(context),
+                            icon: const Icon(Icons.person),
+                            label: const Text('Lihat Profil'),
+                          ),
+                        ] else
+                          ElevatedButton.icon(
+                            onPressed: () => _goToProfile(context),
+                            icon: const Icon(Icons.login),
+                            label: const Text('Login / Daftar'),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+        );
+      },
     );
   }
 }

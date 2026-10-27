@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'providers/user_provider.dart';
 import 'screens/home_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    // LATIHAN 4: ChangeNotifierProvider menyediakan UserProvider ke subtree
+    ChangeNotifierProvider(
+      create: (_) => UserProvider()..loadData(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -12,34 +19,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const UserProviderWrapper(child: AppRoot());
-  }
-}
-
-// Widget ini berada DI BAWAH UserProvider, jadi bisa membaca tema
-class AppRoot extends StatelessWidget {
-  const AppRoot({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = UserProvider.of(context);
-
-    return MaterialApp(
-      title: 'State & Preferences',
-      debugShowCheckedModeBanner: false,
-      themeMode: provider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
-      home: const HomeScreen(),
+    // LATIHAN 4: Consumer, rebuild saat tema berubah
+    return Consumer<UserProvider>(
+      builder: (context, provider, _) {
+        return MaterialApp(
+          title: 'State & Preferences',
+          debugShowCheckedModeBanner: false,
+          themeMode: provider.themeMode,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.deepPurple,
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+          ),
+          home: const HomeScreen(),
+        );
+      },
     );
   }
 }
